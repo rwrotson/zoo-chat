@@ -1,0 +1,99 @@
+version: "3.7"
+
+services:
+#   tg_bot:
+#     build: ./tg_bot
+#     ports:
+#       - "8095:8095"
+#     environment:
+#       - TELEGRAM_TOKEN=${TELEGRAM_TOKEN}
+#       - YANDEX_DISK_TOKEN=${YANDEX_DISK_TOKEN}
+#       - BOT_PASSWORD=${BOT_PASSWORD}
+#     logging:
+#       driver: "json-file"
+#       options:
+#         max-size: "200k"
+#         max-file: "1"
+
+  api:
+    container_name: api
+    build: ./orm_api
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+    ports:
+      - "5000:5000"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: always
+    networks:
+      - app-tier
+
+  db:
+    container_name: db
+#    image: postgres:11.1
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-tier
+    volumes:
+#      - ./db/create_fixtures.sql:/docker-entrypoint-initdb.d/create_fixtures.sql
+      - db:/var/lib/postgresql/data
+
+#  redis:
+#    container_name: redis
+#    image: redis:6-alpine
+#
+#  celery:
+#    build: ./celery
+#    command: /start-celeryworker
+#    volumes:
+#      - .:/app
+#    env_file:
+#      - .env/.dev-sample
+#    environment:
+#      - FLASK_APP=app
+#    depends_on:
+#      - redis
+#      - db
+
+#  flower:
+#    build:
+#      context: .
+#      dockerfile: ./compose/local/flask/Dockerfile
+#    image: flask_celery_example_celery_flower
+#    command: /start-flower
+#    volumes:
+#      - .:/app
+#    env_file:
+#      - .env/.dev-sample
+#    environment:
+#      - FLASK_APP=app
+#    ports:
+#      - 5557:5555
+#    depends_on:
+#      - redis
+#      - db
+
+networks:
+  app-tier:
+    driver: bridge
+
+volumes:
+  db:
+    driver: local

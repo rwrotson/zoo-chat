@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools==65", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "zoo-orm-api"
+authors = [
+    {name = "Igor Lashkov", email = "rwrotson@yandex.ru"},
+]
+version = "0.1.0"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+classifiers = [
+    'License :: OSI Approved :: MIT License',
+    "Programming Language :: Python :: 3.11",
+]
+dependencies = [
+    'fastapi==0.88.0',
+    'uvicorn==0.20.0',
+    'pydantic==1.10.2',
+    'SQLAlchemy==2.0.15',
+    'python-dotenv==0.21.0',
+    'psycopg2-binary==2.9.5'
+]
+
+[project.urls]
+repository = "https://github.com/rwrotson/zoo-chat"
+
+[project.scripts]
+run-api = "app.main:main"
